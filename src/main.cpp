@@ -175,22 +175,22 @@ void loop()
     int sw2 = !digitalRead(SW2);
     int sw3 = !digitalRead(SW3);
 
-    // Serial.print("SW1: ");
-    // Serial.print(sw1);
-    // Serial.print(" SW2: ");
-    // Serial.print(sw2);
-    // Serial.print(" SW3: ");
-    // Serial.print(sw3);
-    // Serial.println();
+    Serial.print("SW1: ");
+    Serial.print(sw1);
+    Serial.print(" SW2: ");
+    Serial.print(sw2);
+    Serial.print(" SW3: ");
+    Serial.print(sw3);
+    Serial.println();
 
-    static unsigned long lastSendTime = 0;
+    // static unsigned long lastSendTime = 0;
 
-    if (millis() - lastSendTime > 5000)
-    {
-        lastSendTime = millis();
-        SendDataToGoogleSheet("status=1&sw=20");
-        Serial.println("Data sent to Google Sheet");
-    }
+    // if (millis() - lastSendTime > 5000)
+    // {
+    //     lastSendTime = millis();
+    //     SendDataToGoogleSheet("status=1&sw=20");
+    //     Serial.println("Data sent to Google Sheet");
+    // }
 
     // if (sw1 != prev_sw1 || sw2 != prev_sw2 || sw3 != prev_sw3)
     // {
