@@ -1,21 +1,13 @@
 #include <WiFi.h>
 #include <Arduino.h>
 #include <HTTPClient.h>
-#include <Firebase_ESP_Client.h>
-
 #include <freertos/task.h>
 #include <freertos/FreeRTOS.h>
 
-#include <addons/RTDBHelper.h>
-#include <addons/TokenHelper.h>
-
 #include "time.h"
 
-#define GOOGLE_SCRIPT_MACRO "https://script.google.com/macros/s/AKfycbzzBZL_XmhT8hxePeLtZTuqGe-xzZU92rs-roG3CfvCb3yoEXzvbOz3jLKkMf-EzE53/exec"
-
 #define SENDING_INTERVAL 5000
-#define API_KEY "AIzaSyCN0a9_Yio4yBx6f9xhhcsXo-dBvHf-d8Y"
-#define DATABASE_URL "https://rainfall-flood-af90a-default-rtdb.asia-southeast1.firebasedatabase.app/"
+#define GOOGLE_SCRIPT_MACRO "https://script.google.com/macros/s/AKfycbzzBZL_XmhT8hxePeLtZTuqGe-xzZU92rs-roG3CfvCb3yoEXzvbOz3jLKkMf-EzE53/exec"
 
 #pragma region WiFi Configuration
 #define WIFI_TIMEOUT_MS 20000
@@ -29,11 +21,6 @@ const int SW2 = 26;
 const int SW3 = 27;
 #pragma endregion
 
-bool signupok = false;
-
-FirebaseData fbdo;
-FirebaseAuth auth;
-FirebaseConfig config;
 TaskHandle_t wifiTaskHandle = NULL;
 
 void Blink(uint32_t delayMs)
@@ -162,15 +149,8 @@ int prev_sw1 = 0;
 int prev_sw2 = 0;
 int prev_sw3 = 0;
 
-unsigned long lastSendTime = 0;
-
 void loop()
 {
-    char timehour[3];
-    char timeminutes[3];
-    char timeseconds[3];
-    unsigned long now = millis();
-
     int sw1 = !digitalRead(SW1);
     int sw2 = !digitalRead(SW2);
     int sw3 = !digitalRead(SW3);
@@ -183,40 +163,31 @@ void loop()
     Serial.print(sw3);
     Serial.println();
 
-    // static unsigned long lastSendTime = 0;
+    if (sw1 != prev_sw1 || sw2 != prev_sw2 || sw3 != prev_sw3)
+    {
 
-    // if (millis() - lastSendTime > 5000)
-    // {
-    //     lastSendTime = millis();
-    //     SendDataToGoogleSheet("status=1&sw=20");
-    //     Serial.println("Data sent to Google Sheet");
-    // }
+        if (prev_sw1 && prev_sw2 && prev_sw3) {
+            Serial.println("SW1, SW2, SW3");
+            SendDataToGoogleSheet("status=3&sw=60");
+        }
 
-    // if (sw1 != prev_sw1 || sw2 != prev_sw2 || sw3 != prev_sw3)
-    // {
+        if (prev_sw1 && prev_sw2 && !prev_sw3) {
+            Serial.println("SW1, SW2");
+            SendDataToGoogleSheet("status=2&sw=40");
+        }
 
-    //     if (prev_sw1 && prev_sw2 && prev_sw3) {
-    //         Serial.println("SW1, SW2, SW3");
-    //         SendDataToGoogleSheet("status=3&sw=60");
-    //     }
+        if (prev_sw1 && !prev_sw2 && !prev_sw3) {
+            Serial.println("SW1");
+            SendDataToGoogleSheet("status=1&sw=20");
+        }
 
-    //     if (prev_sw1 && prev_sw2 && !prev_sw3) {
-    //         Serial.println("SW1, SW2");
-    //         SendDataToGoogleSheet("status=2&sw=40");
-    //     }
+        if (!prev_sw1 && !prev_sw2 && !prev_sw3) {
+            Serial.println("No SW");
+            SendDataToGoogleSheet("status=0&sw=0");
+        }
 
-    //     if (prev_sw1 && !prev_sw2 && !prev_sw3) {
-    //         Serial.println("SW1");
-    //         SendDataToGoogleSheet("status=1&sw=20");
-    //     }
-
-    //     if (!prev_sw1 && !prev_sw2 && !prev_sw3) {
-    //         Serial.println("No SW");
-    //         SendDataToGoogleSheet("status=0&sw=0");
-    //     }
-
-    //     prev_sw1 = sw1;
-    //     prev_sw2 = sw2;
-    //     prev_sw3 = sw3;
-    // }
+        prev_sw1 = sw1;
+        prev_sw2 = sw2;
+        prev_sw3 = sw3;
+    }
 }
