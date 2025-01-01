@@ -19,8 +19,8 @@
 
 #pragma region WiFi Configuration
 #define WIFI_TIMEOUT_MS 20000
-const char *ssid = "";
-const char *pass = "";
+const char *ssid = "Astana-2.4G";
+const char *pass = "1571@azz";
 #pragma endregion
 
 #pragma region Pin Configuration
@@ -188,7 +188,7 @@ void loop()
     if (millis() - lastSendTime > 5000)
     {
         lastSendTime = millis();
-        SendDataToGoogleSheet("status=0&sw=0");
+        SendDataToGoogleSheet("status=1&sw=20");
         Serial.println("Data sent to Google Sheet");
     }
 
