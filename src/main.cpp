@@ -175,11 +175,11 @@ void loop()
     int sw2 = !digitalRead(SW2);
     int sw3 = !digitalRead(SW3);
 
-    Serial.print("SW1: ");
+    Serial.print(">SW1: ");
     Serial.print(sw1);
-    Serial.print(" SW2: ");
+    Serial.print(">SW2: ");
     Serial.print(sw2);
-    Serial.print(" SW3: ");
+    Serial.print(">SW3: ");
     Serial.print(sw3);
     Serial.println();
 
