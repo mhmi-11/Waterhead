@@ -19,8 +19,8 @@
 
 #pragma region WiFi Configuration
 #define WIFI_TIMEOUT_MS 20000
-const char *ssid = "Astana-2.4G";
-const char *pass = "1571@azz";
+const char *ssid = "";
+const char *pass = "";
 #pragma endregion
 
 #pragma region Pin Configuration
@@ -175,13 +175,13 @@ void loop()
     int sw2 = !digitalRead(SW2);
     int sw3 = !digitalRead(SW3);
 
-    Serial.print("SW1: ");
-    Serial.print(sw1);
-    Serial.print(" SW2: ");
-    Serial.print(sw2);
-    Serial.print(" SW3: ");
-    Serial.print(sw3);
-    Serial.println();
+    // Serial.print("SW1: ");
+    // Serial.print(sw1);
+    // Serial.print(" SW2: ");
+    // Serial.print(sw2);
+    // Serial.print(" SW3: ");
+    // Serial.print(sw3);
+    // Serial.println();
 
     static unsigned long lastSendTime = 0;
 
@@ -189,6 +189,7 @@ void loop()
     {
         lastSendTime = millis();
         SendDataToGoogleSheet("status=0&sw=0");
+        Serial.println("Data sent to Google Sheet");
     }
 
     // if (sw1 != prev_sw1 || sw2 != prev_sw2 || sw3 != prev_sw3)
