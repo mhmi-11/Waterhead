@@ -1,0 +1,86 @@
+int prev_sw1 = 0;
+int prev_sw2 = 0;
+int prev_sw3 = 0;
+
+unsigned long lastSendTime = 0;
+
+void loop()
+{
+    char timehour[3];
+    char timeminutes[3];
+    char timeseconds[3];
+    unsigned long now = millis();
+
+    int sw1 = !digitalRead(SW1);
+    int sw2 = !digitalRead(SW2);
+    int sw3 = !digitalRead(SW3);
+
+    strftime(timehour, 3, "%H", &timeinfo);
+    strftime(timeminutes, 3, "%M", &timeinfo);
+    strftime(timeseconds, 3, "%S", &timeinfo);
+
+    Serial.print("SW1: ");
+    Serial.print(sw1);
+    Serial.print(" SW2: ");
+    Serial.print(sw2);
+    Serial.print(" SW3: ");
+    Serial.print(sw3);
+    Serial.print(" Time: ");
+    Serial.println(String(timehour) + ":" + String(timeminutes) + ":" + String(timeseconds));
+
+    if (sw1 != prev_sw1 || sw2 != prev_sw2 || sw3 != prev_sw3)
+    {
+        String time = String(timehour) + ":" + String(timeminutes);
+
+        if (Firebase.ready() && signupok)
+        {
+            if (Firebase.RTDB.setString(&fbdo, "/esp32/upstream", time.c_str()))
+            {
+                Serial.println("Data sent to Firebase");
+            }
+
+            if (Firebase.RTDB.setInt(&fbdo, "/esp32/USW1", sw1 ? 1 : 0))
+            {
+                Serial.println("SW1 sent to Firebase");
+            }
+
+            if (Firebase.RTDB.setInt(&fbdo, "/esp32/USW2", sw2 ? 1 : 0))
+            {
+                Serial.println("SW2 sent to Firebase");
+            }
+
+            if (Firebase.RTDB.setInt(&fbdo, "/esp32/USW3", sw3 ? 1 : 0))
+            {
+                Serial.println("SW3 sent to Firebase");
+            }
+        }
+
+        prev_sw1 = sw1;
+        prev_sw2 = sw2;
+        prev_sw3 = sw3;
+    } 
+    else
+    {
+        if (now - lastSendTime > SENDING_INTERVAL)
+        {
+            if (Firebase.ready() && signupok)
+            {
+                if (Firebase.RTDB.setInt(&fbdo, "/esp32/USW1", sw1 ? 1 : 0))
+                {
+                    Serial.println("SW1 sent to Firebase");
+                }
+
+                if (Firebase.RTDB.setInt(&fbdo, "/esp32/USW2", sw2 ? 1 : 0))
+                {
+                    Serial.println("SW2 sent to Firebase");
+                }
+
+                if (Firebase.RTDB.setInt(&fbdo, "/esp32/USW3", sw3 ? 1 : 0))
+                {
+                    Serial.println("SW3 sent to Firebase");
+                }
+            }
+            lastSendTime = now;
+        }
+    }
+}

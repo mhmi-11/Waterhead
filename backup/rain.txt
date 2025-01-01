@@ -1,0 +1,98 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <WiFi.h>
+#include <HTTPClient.h>
+
+// Rain Gauge Variables
+const int pin_interrupt = 26; // Pin for Hall Effect Sensor
+long int jumlah_tip = 0;
+float curah_hujan = 0.00;
+const float milimeter_per_tip = 0.70; // Rainfall per tip in millimeters
+volatile boolean flag = false;
+
+// LCD Setup
+int lcdColumns = 16;
+int lcdRows = 4;
+LiquidCrystal_I2C lcd(0x27, lcdColumns, lcdRows);
+
+// WiFi Credentials
+const char *ssid = "KroniDelima_2.4G"; // Your WiFi name
+const char *password = "pakias170897"; // Your WiFi password
+
+// Google Script Web App URL
+String Web_App_URL = "https://script.google.com/macros/s/AKfycbztEGxnz7Kf-0r7TSfscsUa0kvbdCMLZ3CoLb-nNo1IWLDZW70EejQBDDaDkyJwOUId/exec";
+
+// Function to handle tipping bucket
+void IRAM_ATTR hitung_curah_hujan()
+{
+    flag = true;
+}
+
+void setup()
+{
+    // Initialize Serial Communication
+    Serial.begin(9600);
+
+    // Initialize LCD
+    lcd.init();
+    lcd.backlight();
+    lcd.clear();
+
+    // Initialize Hall Effect Sensor
+    pinMode(pin_interrupt, INPUT);
+    attachInterrupt(digitalPinToInterrupt(pin_interrupt), hitung_curah_hujan, FALLING);
+
+    // Connect to WiFi
+    WiFi.begin(ssid, password);
+    Serial.print("Connecting to WiFi...");
+    while (WiFi.status() != WL_CONNECTED)
+    {
+        delay(500);
+        Serial.print(".");
+    }
+    Serial.println("\nConnected to WiFi");
+    lcd.setCursor(0, 0);
+    lcd.print("WiFi Connected");
+    delay(2000);
+    lcd.clear();
+}
+
+void loop()
+{
+    // Handle tipping bucket event
+    if (flag)
+    {
+        curah_hujan += milimeter_per_tip; // Increment rainfall
+        jumlah_tip++;
+        flag = false; // Reset flag
+    }
+
+    // Update LCD with current rainfall data
+    lcd.setCursor(0, 0);
+    lcd.print("Tips: ");
+    lcd.print(jumlah_tip);
+    lcd.setCursor(0, 1);
+    lcd.print("Rain: ");
+    lcd.print(curah_hujan, 1);
+    lcd.print("mm");
+
+    // Send data to Google Sheets
+    if (WiFi.status() == WL_CONNECTED)
+    {
+        String Send_Data_URL = Web_App_URL + "?tips=" + jumlah_tip + "&rain=" + String(curah_hujan, 1);
+        HTTPClient http;
+        http.begin(Send_Data_URL.c_str());
+        int httpCode = http.GET(); // Send GET request
+        if (httpCode > 0)
+        {
+            Serial.println("Data sent to Google Sheets");
+        }
+        else
+        {
+            Serial.println("Failed to send data");
+        }
+        http.end();
+    }
+
+    delay(1000); // Wait 3 seconds before sending data again
+}
