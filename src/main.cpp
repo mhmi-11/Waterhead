@@ -149,45 +149,59 @@ int prev_sw1 = 0;
 int prev_sw2 = 0;
 int prev_sw3 = 0;
 
+unsigned long lastSendTime = 0;
+
 void loop()
 {
     int sw1 = !digitalRead(SW1);
     int sw2 = !digitalRead(SW2);
     int sw3 = !digitalRead(SW3);
 
-    Serial.print(">SW1: ");
-    Serial.print(sw1);
-    Serial.print(">SW2: ");
-    Serial.print(sw2);
-    Serial.print(">SW3: ");
-    Serial.print(sw3);
-    Serial.println();
+    // Serial.print(">SW1: ");
+    // Serial.print(sw1);
+    // Serial.print(">SW2: ");
+    // Serial.print(sw2);
+    // Serial.print(">SW3: ");
+    // Serial.print(sw3);
+    // Serial.println();
 
-    if (sw1 != prev_sw1 || sw2 != prev_sw2 || sw3 != prev_sw3)
+    if (millis() - lastSendTime > SENDING_INTERVAL) 
     {
-
-        if (prev_sw1 && prev_sw2 && prev_sw3) {
-            Serial.println("SW1, SW2, SW3");
-            SendDataToGoogleSheet("status=3&sw=60");
-        }
-
-        if (prev_sw1 && prev_sw2 && !prev_sw3) {
-            Serial.println("SW1, SW2");
-            SendDataToGoogleSheet("status=2&sw=40");
-        }
-
-        if (prev_sw1 && !prev_sw2 && !prev_sw3) {
-            Serial.println("SW1");
-            SendDataToGoogleSheet("status=1&sw=20");
-        }
-
-        if (!prev_sw1 && !prev_sw2 && !prev_sw3) {
-            Serial.println("No SW");
-            SendDataToGoogleSheet("status=0&sw=0");
-        }
-
-        prev_sw1 = sw1;
-        prev_sw2 = sw2;
-        prev_sw3 = sw3;
+        int randomStatus = random(0, 4);
+        int swValue = randomStatus * 20;
+        
+        String payload = "status=" + String(randomStatus) + "&sw=" + String(swValue);
+        Serial.println("Sending: " + payload);
+        SendDataToGoogleSheet(payload);
+        
+        lastSendTime = millis();
     }
+
+    // if (sw1 != prev_sw1 || sw2 != prev_sw2 || sw3 != prev_sw3)
+    // {
+
+    //     if (prev_sw1 && prev_sw2 && prev_sw3) {
+    //         Serial.println("SW1, SW2, SW3");
+    //         SendDataToGoogleSheet("status=3&sw=60");
+    //     }
+
+    //     if (prev_sw1 && prev_sw2 && !prev_sw3) {
+    //         Serial.println("SW1, SW2");
+    //         SendDataToGoogleSheet("status=2&sw=40");
+    //     }
+
+    //     if (prev_sw1 && !prev_sw2 && !prev_sw3) {
+    //         Serial.println("SW1");
+    //         SendDataToGoogleSheet("status=1&sw=20");
+    //     }
+
+    //     if (!prev_sw1 && !prev_sw2 && !prev_sw3) {
+    //         Serial.println("No SW");
+    //         SendDataToGoogleSheet("status=0&sw=0");
+    //     }
+
+    //     prev_sw1 = sw1;
+    //     prev_sw2 = sw2;
+    //     prev_sw3 = sw3;
+    // }
 }
