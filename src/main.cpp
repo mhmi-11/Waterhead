@@ -6,7 +6,7 @@
 
 #include "time.h"
 
-#define SENDING_INTERVAL 5000
+#define SENDING_INTERVAL 2000
 #define GOOGLE_SCRIPT_MACRO "https://script.google.com/macros/s/AKfycbzzBZL_XmhT8hxePeLtZTuqGe-xzZU92rs-roG3CfvCb3yoEXzvbOz3jLKkMf-EzE53/exec"
 
 #pragma region WiFi Configuration
@@ -153,6 +153,8 @@ unsigned long lastSendTime = 0;
 int iterationCount = 0;
 int currentStatus = 1;
 bool isIncreasing = true;
+// int randomThreshold = random(5, 17); // Kalau nak random row 
+int randomThreshold = 16; // Kalau nak row consistent
 
 void loop()
 {
@@ -169,7 +171,7 @@ void loop()
 
         iterationCount++;
 
-        if (iterationCount >= 5)
+        if (iterationCount >= randomThreshold)
         {
             iterationCount = 0;
 
